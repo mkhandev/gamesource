@@ -1,3 +1,43 @@
+<script setup>
+import { ref } from "vue";
+// ARTICLE STORE
+import { useArticleStore } from "@/stores/articles";
+const articleStore = useArticleStore();
+// ROUTER
+import { useRoute, useRouter } from "vue-router";
+const router = useRouter();
+const route = useRoute();
+
+const loading = ref(false);
+const btnLoad = ref(false);
+
+/// LOAD MORE ARTICLES
+const loadMoreHandler = () => {
+  btnLoad.value = true;
+  articleStore.adminGetMoreArticles(3)
+  .finally(() =>{
+    btnLoad.value = false;
+  });
+};
+
+//// GET FIRST ARTICLES
+if (!articleStore.adminArticles || route.query.reload) {
+  loading.value = true;
+  articleStore.adminGetArticles(3).finally(() => {
+    loading.value = false;
+  });
+}
+
+/// REMOVE BY ID
+const removeHandler = (articleId) => {
+  loading.value = true;
+  articleStore.removeById(articleId).
+  finally(() => {
+    loading.value = false;
+  });
+};
+
+</script>
 <template>
   <div>
     <div class="text-center m-3" v-show="loading">
@@ -16,13 +56,13 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="article in articleStore.adminArticles">
+          <tr v-for="(article, index) in articleStore.adminArticles" :key="index">
             <td>{{ article.game }}</td>
             <td>{{ article.owner.firstname }} {{ article.owner.lastname }}</td>
             <td>{{ article.rating }}</td>
             <td>{{ article.timestamp.toDate().toDateString() }}</td>
             <td>
-              <v-btn variant="outlined" color="red" size="small">
+              <v-btn variant="outlined" color="red" size="small" @click="removeHandler(article.id)">
                 Remove
               </v-btn>
             </td>
@@ -54,34 +94,3 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { ref } from "vue";
-// ARTICLE STORE
-import { useArticleStore } from "@/stores/articles";
-const articleStore = useArticleStore();
-// ROUTER
-import { useRoute, useRouter } from "vue-router";
-const router = useRouter();
-const route = useRoute();
-
-const loading = ref(false);
-const btnLoad = ref(false);
-
-/// LOAD MORE ARTICLES
-const loadMoreHandler = () => {
-  btnLoad.value = true;
-  articleStore.adminGetMoreArticles(3)
-  .finally(() =>{
-    btnLoad.value = false;
-  });
-};
-
-//// GET FIRST ARTICLES
-if (!articleStore.adminArticles || route.query.reload) {
-  loading.value = true;
-  articleStore.adminGetArticles(3).finally(() => {
-    loading.value = false;
-  });
-}
-</script>

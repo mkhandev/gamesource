@@ -18,6 +18,10 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 
+// TOASTS
+import { useToast } from "vue-toast-notification";
+const $toast = useToast();
+
 let articlesCol = collection(DB, "articles");
 
 import { useUserStore } from "./user";
@@ -126,6 +130,25 @@ export const useArticleStore = defineStore("article", {
         /// UPDATE ADMIN ARTICLES STATE
         this.adminArticles = articles;
         this.adminLastVisible = lastVisible;
+      } catch (error) {
+        throw new Error(error);
+      }
+    },
+    async removeById(articleID) {
+      try {
+        await deleteDoc(doc(DB, "articles", articleID));
+
+        const newList = this.adminArticles.filter((x) => {
+          // if (x.id != articleID) {
+          //   return true;
+          // }
+
+          return x.id != articleID
+        });
+
+        this.adminArticles = newList;
+        /// SHOW TOASTS
+        $toast.success("Removed !!");
       } catch (error) {
         throw new Error(error);
       }
