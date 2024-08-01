@@ -32,7 +32,14 @@ export const useArticleStore = defineStore("article", {
     adminArticles: "",
     adminLastVisible: "",
   }),
-  getters: {},
+  getters: {
+    getHomeArticles(state){
+      return state.homeArticles;
+    },
+    getFeaturesSlides(state){
+      return state.homeArticles.slice(0,2);
+    },
+  },
   actions: {
     async getArticleById(id) {
       try {
@@ -43,6 +50,7 @@ export const useArticleStore = defineStore("article", {
 
         return docRef.data();
       } catch (error) {
+        $toast.success(error.message)
         router.push({ name: "404" });
       }
     },
@@ -143,12 +151,29 @@ export const useArticleStore = defineStore("article", {
           //   return true;
           // }
 
-          return x.id != articleID
+          return x.id != articleID;
         });
 
         this.adminArticles = newList;
         /// SHOW TOASTS
         $toast.success("Removed !!");
+      } catch (error) {
+        throw new Error(error);
+      }
+    },
+    async getArticles(docsLimit) {
+      try {
+        const q = query(
+          articlesCol,
+          orderBy("timestamp", "desc"),
+          limit(docsLimit)
+        );
+        const querySnapshot = await getDocs(q);
+        const articles = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        this.homeArticles = articles;
       } catch (error) {
         throw new Error(error);
       }

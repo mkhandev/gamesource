@@ -28,20 +28,37 @@ export const useUserStore = defineStore("user", {
     auth: false,
   }),
   getters: {
-    getUserData(state){
-      return state.user
-    }
+    getUserData(state) {
+      return state.user;
+    },
+    getUserId(state) {
+      return state.user.uid;
+    },
   },
   actions: {
     setUser(user) {
       this.user = { ...this.user, ...user };
       this.auth = true;
     },
+    async updateProfile(formData) {
+      try {
+        const userRef = doc(DB, "users", this.getUserId);
+        await updateDoc(userRef, {
+          ...formData,
+        });
+
+        this.setUser(formData);
+        $toast.success("Updated !!!");
+        return true;
+      } catch (error) {
+        $toast.error(error.message);
+      }
+    },
     async signOut() {
       await signOut(AUTH);
       this.user = DEFAULT_USER;
       this.auth = false;
-      router.push({name: 'home'});
+      router.push({ name: "home" });
     },
     async autosignin(uid) {
       try {
@@ -53,7 +70,7 @@ export const useUserStore = defineStore("user", {
 
         return true;
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
     },
     async getUserProfile(uid) {
@@ -84,7 +101,7 @@ export const useUserStore = defineStore("user", {
         /// GET USER DATA
         const userData = await this.getUserProfile(response.user.uid);
 
-        console.log(userData);
+        //console.log(userData);
 
         /// UPDATE LOCAL STATE
         this.setUser(userData);

@@ -8,6 +8,7 @@ import AdminArticles from "@/components/user/dashboard/admin/articles.vue";
 import AdminAddArticle from "@/components/user/dashboard/admin/add.vue";
 import AdminEditArticle from "@/components/user/dashboard/admin/edit.vue";
 import NotFound from "../components/404.vue"
+import Article from '../components/articles/article.vue'
 
 import { isAuth, isLoggedIn } from "@/composables/auth";
 
@@ -15,6 +16,7 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     { path: "/", name: "home", component: Home },
+    { path:'/article/:id', component: Article, name:'article'},
     {
       path: "/signin",
       name: "signin",
